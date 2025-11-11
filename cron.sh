@@ -19,6 +19,9 @@ if [ -z "${HC_BASE_URL:-}" ]; then
   exit 1
 fi
 
+# Remove trailing slash from HC_BASE_URL if present
+HC_BASE_URL="${HC_BASE_URL%/}"
+
 DNS_LIST="https://public-dns.info/nameservers.txt"
 JSON_OUT="$REPO_DIR/resolvers.json"
 
@@ -27,7 +30,7 @@ MEDIUM_OUT="$REPO_DIR/medium_resolvers.txt"
 ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
 # ── HEALTHCHECKS START ─────────────────────────────────────────────────
-echo "[+] Pinging Healthchecks.io start..."
+echo "[+] Pinging Healthchecks.io start: ${HC_BASE_URL}/start"
 if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" 2>&1; then
   echo "[!] Warning: Failed to ping Healthchecks start"
 fi
