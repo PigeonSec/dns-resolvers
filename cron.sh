@@ -12,6 +12,13 @@ else
   echo "Please copy .env.example to .env and configure it."
   exit 1
 fi
+
+# Validate HC_BASE_URL is set
+if [ -z "${HC_BASE_URL:-}" ]; then
+  echo "ERROR: HC_BASE_URL not set in .env file"
+  exit 1
+fi
+
 DNS_LIST="https://public-dns.info/nameservers.txt"
 JSON_OUT="$REPO_DIR/resolvers.json"
 
@@ -19,23 +26,25 @@ FAST_OUT="$REPO_DIR/fast_resolvers.txt"
 MEDIUM_OUT="$REPO_DIR/medium_resolvers.txt"
 ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
+# ── HEALTHCHECKS START ─────────────────────────────────────────────────
+echo "[+] Pinging Healthchecks.io start..."
+curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" || echo "[!] Warning: Failed to ping Healthchecks start"
+start_ts=$(date +%s)
+
 # ── CHECK DEPENDENCIES ─────────────────────────────────────────────────
 for cmd in jq git curl; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing dependency: $cmd"
+    curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" || true
     exit 1
   }
 done
-
-# ── HEALTHCHECKS START ─────────────────────────────────────────────────
-curl -fsS -m 10 --retry 5 -o /dev/null "${HC_BASE_URL}/start" || true
-start_ts=$(date +%s)
 
 {
   cd "$REPO_DIR"
 
   echo "[+] Running pyresolvers at $(date)..."
-  /root/venv/bin/pyresolvers -tL "$DNS_LIST" -threads 100 --format json -o "$JSON_OUT"
+  /root/venv/bin/pyresolvers -tL "$DNS_LIST" -threads 100 --format json -o "$JSON_OUT" --silent
 
   # ── BUILD TXT LISTS WITH jq ──────────────────────────────────────────
   echo "[+] Creating resolver lists..."
