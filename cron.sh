@@ -28,14 +28,18 @@ ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
 # ── HEALTHCHECKS START ─────────────────────────────────────────────────
 echo "[+] Pinging Healthchecks.io start..."
-curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" || echo "[!] Warning: Failed to ping Healthchecks start"
+if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" 2>&1; then
+  echo "[!] Warning: Failed to ping Healthchecks start"
+fi
 start_ts=$(date +%s)
 
 # ── CHECK DEPENDENCIES ─────────────────────────────────────────────────
 for cmd in jq git curl; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing dependency: $cmd"
-    curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" || true
+    if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" 2>&1; then
+      echo "[!] Warning: Failed to ping Healthchecks failure"
+    fi
     exit 1
   }
 done
@@ -74,14 +78,18 @@ done
   git push origin main >/dev/null 2>&1
 
   # ── HEALTHCHECK SUCCESS ─────────────────────────────────────────────
-  curl -fsS -m 10 --retry 5 "${HC_BASE_URL}" || true
+  if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}" 2>&1; then
+    echo "[!] Warning: Failed to ping Healthchecks success"
+  fi
 
   echo "[+] Done in ${duration_min} min (${duration}s)."
   echo "[+] ${total_count} total, ${fast_count} fast, ${medium_count} medium resolvers committed."
 
 } || {
   # On failure
-  curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" || true
   echo "[!] pyresolvers job failed!"
+  if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" 2>&1; then
+    echo "[!] Warning: Failed to ping Healthchecks failure"
+  fi
   exit 1
 }
