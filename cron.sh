@@ -30,10 +30,8 @@ MEDIUM_OUT="$REPO_DIR/medium_resolvers.txt"
 ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
 # ── HEALTHCHECKS START ─────────────────────────────────────────────────
-echo "[+] Pinging Healthchecks.io start: ${HC_BASE_URL}/start"
-if ! curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" 2>&1; then
-  echo "[!] Warning: Failed to ping Healthchecks start"
-fi
+echo "[+] Pinging Healthchecks.io start..."
+curl -m 10 --retry 3 "${HC_BASE_URL}/start" >/dev/null 2>&1 && echo "[+] Start ping successful" || echo "[!] Start ping failed (non-fatal, continuing...)"
 start_ts=$(date +%s)
 
 # ── CHECK DEPENDENCIES ─────────────────────────────────────────────────
