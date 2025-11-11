@@ -20,7 +20,7 @@ MEDIUM_OUT="$REPO_DIR/medium_resolvers.txt"
 ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
 # ── CHECK DEPENDENCIES ─────────────────────────────────────────────────
-for cmd in jq pyresolvers git curl; do
+for cmd in jq git curl; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing dependency: $cmd"
     exit 1
