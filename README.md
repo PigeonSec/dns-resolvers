@@ -58,6 +58,71 @@ This cronjob system:
 
 The `HC_BASE_URL` (Healthchecks.io monitoring URL) is stored in `.env` and **never committed** to the repository. See deployment instructions below.
 
+## Using the Lists
+
+### Download URLs
+
+| File | Description | Raw URL |
+|------|-------------|---------|
+| `resolvers.json` | Full dataset with latency metrics | `https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/resolvers.json` |
+| `fast_resolvers.txt` | Fast resolvers (< 50ms) | `https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/fast_resolvers.txt` |
+| `medium_resolvers.txt` | Medium resolvers (< 150ms) | `https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/medium_resolvers.txt` |
+| `all_resolvers.txt` | All working resolvers | `https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/all_resolvers.txt` |
+
+### Download Examples
+
+**Using curl:**
+
+```bash
+# Download fast resolvers
+curl -o fast_resolvers.txt https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/fast_resolvers.txt
+
+# Download all resolvers
+curl -o all_resolvers.txt https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/all_resolvers.txt
+
+# Download JSON data
+curl -o resolvers.json https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/resolvers.json
+```
+
+**Using Python:**
+
+```python
+import requests
+
+# Download fast resolvers
+url = "https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/fast_resolvers.txt"
+response = requests.get(url)
+resolvers = response.text.strip().split('\n')
+
+print(f"Downloaded {len(resolvers)} fast DNS resolvers")
+for resolver in resolvers[:5]:  # Print first 5
+    print(f"  - {resolver}")
+```
+
+```python
+import requests
+import json
+
+# Download and parse JSON data
+url = "https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/resolvers.json"
+response = requests.get(url)
+data = json.loads(response.text)
+
+print(f"Total servers: {data['count']}")
+for server in data['servers'][:5]:  # Print first 5
+    print(f"  {server['ip']} - {server.get('latency_ms', 'N/A')}ms")
+```
+
+**Using wget:**
+
+```bash
+# Download all files
+wget https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/fast_resolvers.txt
+wget https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/medium_resolvers.txt
+wget https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/all_resolvers.txt
+wget https://raw.githubusercontent.com/PigeonSec/dns-resolvers/refs/heads/main/resolvers.json
+```
+
 ## Deployment
 
 ### Prerequisites
