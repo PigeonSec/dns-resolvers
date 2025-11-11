@@ -27,15 +27,16 @@ MEDIUM_OUT="$REPO_DIR/medium_resolvers.txt"
 ALL_OUT="$REPO_DIR/all_resolvers.txt"
 
 # ── HEALTHCHECKS START ─────────────────────────────────────────────────
-echo "[+] Pinging Healthchecks.io start..."
-curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start" || echo "[!] Warning: Failed to ping Healthchecks start"
+RID=$(uuidgen)
+echo "[+] Pinging Healthchecks.io start (rid=$RID)..."
+curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/start?rid=$RID" || echo "[!] Warning: Failed to ping Healthchecks start"
 start_ts=$(date +%s)
 
 # ── CHECK DEPENDENCIES ─────────────────────────────────────────────────
-for cmd in jq git curl; do
+for cmd in jq git curl uuidgen; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing dependency: $cmd"
-    curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail" || true
+    curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail?rid=$RID" || true
     exit 1
   }
 done
@@ -74,14 +75,14 @@ done
   git push origin main >/dev/null 2>&1
 
   # ── HEALTHCHECK SUCCESS ─────────────────────────────────────────────
-  curl -fsS -m 10 --retry 5 -o /dev/null "${HC_BASE_URL}?duration=${duration}" || true
+  curl -fsS -m 10 --retry 5 "${HC_BASE_URL}?rid=$RID" || true
 
   echo "[+] Done in ${duration_min} min (${duration}s)."
   echo "[+] ${total_count} total, ${fast_count} fast, ${medium_count} medium resolvers committed."
 
 } || {
   # On failure
-  curl -fsS -m 10 --retry 5 -o /dev/null "${HC_BASE_URL}/fail" || true
+  curl -fsS -m 10 --retry 5 "${HC_BASE_URL}/fail?rid=$RID" || true
   echo "[!] pyresolvers job failed!"
   exit 1
 }
