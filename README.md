@@ -1,6 +1,12 @@
 # dns-resolvers
 
-Tested and curated DNS resolver lists, updated every 48 hours.
+## Status
+
+These resolver lists are no longer updated automatically.
+
+The dedicated update server was shut down because it cost too much to keep running. Until a cheaper replacement exists, this repository should be treated as a manual / best-effort snapshot rather than a continuously refreshed feed.
+
+Tested and curated DNS resolver lists. The old automatic 48-hour refresh is currently paused.
 
 ## Download
 
@@ -24,7 +30,7 @@ Automated testing of public DNS servers using [pyresolvers](https://github.com/P
 - **Medium** - Under 150ms response time
 - **All** - All working resolvers
 
-Updated automatically every 48 hours from [public-dns.info](https://public-dns.info/nameservers.txt).
+These lists were previously updated automatically every 48 hours from [public-dns.info](https://public-dns.info/nameservers.txt). That automation is currently paused.
 
 ## Self-Hosting
 
